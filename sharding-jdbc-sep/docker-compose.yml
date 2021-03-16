@@ -11,7 +11,7 @@ services:
     volumes:
       # 数据库还原目录 可将需要还原的sql文件放在这里
       - ./sql:/docker-entrypoint-initdb.d
-      - ./conf/master/mysql.cnf:/etc/mysql/mysql.cnf
+      - ./config/master/mysql.cnf:/etc/mysql/mysql.cnf
     networks:
       - overlay
 
@@ -26,7 +26,8 @@ services:
     depends_on:
       - mysql_master
     volumes:
-      - ./conf/slave1/mysql.cnf:/etc/mysql/mysql.cnf
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./config/slave1/mysql.cnf:/etc/mysql/mysql.cnf
     networks:
       - overlay
 
@@ -41,7 +42,8 @@ services:
     depends_on:
       - mysql_master
     volumes:
-      - ./conf/slave2/mysql.cnf:/etc/mysql/mysql.cnf
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./config/slave2/mysql.cnf:/etc/mysql/mysql.cnf
     networks:
       - overlay
 

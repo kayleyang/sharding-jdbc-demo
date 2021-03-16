@@ -48,9 +48,11 @@ MS_STATUS=`docker exec $master_container sh -c 'export MYSQL_PWD='$root_password
 echo $MS_STATUS
 
 # binlog文件名字,对应 File 字段,值如: mysql-bin.000004
-CURRENT_LOG=`echo $MS_STATUS | awk '{print $6}'`
+CURRENT_LOG=`echo $MS_STATUS | awk 'END{print $1}'`
+echo "CURRENT_LOG='$CURRENT_LOG'"
 # binlog位置,对应 Position 字段,值如: 1429
-CURRENT_POS=`echo $MS_STATUS | awk '{print $7}'`
+CURRENT_POS=`echo $MS_STATUS | awk 'END{print $2}'`
+echo "CURRENT_POS='$CURRENT_POS'"
 
 #################### 从服务器操作 ####################开始
 # 设置从服务器与主服务器互通命令
@@ -67,6 +69,7 @@ start_slave_cmd+='START SLAVE;"'
 # 执行从服务器与主服务器互通
 for slave in "${slave_containers[@]}";do
   # 从服务器连接主互通
+  echo "从服务器连接主互通> $start_slave_cmd"
   docker exec $slave sh -c "$start_slave_cmd"
   # 查看从服务器的状态
   echo "查看从服务器'$slave'的状态......"
