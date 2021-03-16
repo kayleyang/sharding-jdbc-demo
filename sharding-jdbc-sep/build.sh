@@ -37,12 +37,15 @@ done
 
 #################### 主服务器操作 ####################开始
 # 在主服务器上添加数据库用户
+echo "在主服务器上添加数据库用户......"
 priv_stmt='GRANT REPLICATION SLAVE ON *.* TO "'$mysql_user'"@"%" IDENTIFIED BY "'$mysql_password'"; FLUSH PRIVILEGES;'
 
 docker exec $master_container sh -c "export MYSQL_PWD='$root_password'; mysql -u root -e '$priv_stmt'"
 
 # 查看主服务器的状态
+echo "查看主服务器的状态......"
 MS_STATUS=`docker exec $master_container sh -c 'export MYSQL_PWD='$root_password'; mysql -u root -e "SHOW MASTER STATUS"'`
+echo $MS_STATUS
 
 # binlog文件名字,对应 File 字段,值如: mysql-bin.000004
 CURRENT_LOG=`echo $MS_STATUS | awk '{print $6}'`
@@ -65,7 +68,8 @@ start_slave_cmd+='START SLAVE;"'
 for slave in "${slave_containers[@]}";do
   # 从服务器连接主互通
   docker exec $slave sh -c "$start_slave_cmd"
-  # 查看从服务器得状态
+  # 查看从服务器的状态
+  echo "查看从服务器'$slave'的状态......"
   docker exec $slave sh -c "export MYSQL_PWD='$root_password'; mysql -u root -e 'SHOW SLAVE STATUS \G'"
 done
 
