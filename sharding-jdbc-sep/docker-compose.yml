@@ -1,0 +1,49 @@
+version: '3.1'
+services:
+  mysql_master:
+    image: mysql:5.7.16
+    env_file:
+      - ./config/mysql.env
+    container_name: "mysql_master"
+    restart: "no"
+    ports:
+      - 3307:3306
+    volumes:
+      # 数据库还原目录 可将需要还原的sql文件放在这里
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./conf/master/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+    networks:
+      - overlay
+
+  mysql_slave1:
+    image: mysql:5.7.16
+    env_file:
+      - ./config/mysql.env
+    container_name: "mysql_slave1"
+    restart: "no"
+    ports:
+      - 5506:3306
+    depends_on:
+      - mysql_master
+    volumes:
+      - ./conf/slave1/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+    networks:
+      - overlay
+
+  mysql_slave2:
+    image: mysql:5.7.16
+    env_file:
+      - ./config/mysql.env
+    container_name: "mysql_slave2"
+    restart: "no"
+    ports:
+      - 5507:3306
+    depends_on:
+      - mysql_master
+    volumes:
+      - ./conf/slave2/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+    networks:
+      - overlay
+
+networks:
+  overlay:
