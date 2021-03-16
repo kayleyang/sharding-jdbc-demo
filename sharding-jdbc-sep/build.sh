@@ -1,7 +1,7 @@
 #!/bin/bash
 #################### 变量定义 ####################
-mysql_user="slave_user"    # 主服务器允许从服务器登录的用户名
-mysql_password="slave_pwd" # 主服务器允许从服务器登录的密码
+slave_user="slave_user"    # 主服务器允许从服务器登录的用户名
+slave_password="slave_pwd" # 主服务器允许从服务器登录的密码
 root_password="password"             # 每台服务器的root密码
 # 主库列表
 master_container=mysql_master
@@ -15,7 +15,7 @@ retry_duration=5
 
 #################### 函数定义 ####################
 # 获取服务器的ip
-docker-ip() {
+docker_ip() {
     docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$@"
 }
 
@@ -38,13 +38,13 @@ done
 #################### 主服务器操作 ####################开始
 # 在主服务器上添加数据库用户
 echo "在主服务器上添加数据库用户......"
-priv_stmt='GRANT REPLICATION SLAVE ON *.* TO "'$mysql_user'"@"%" IDENTIFIED BY "'$mysql_password'"; FLUSH PRIVILEGES;'
+priv_stmt='GRANT REPLICATION SLAVE ON *.* TO "'$slave_user'"@"%" IDENTIFIED BY "'$slave_password'"; FLUSH PRIVILEGES;'
 
 docker exec $master_container sh -c "export MYSQL_PWD='$root_password'; mysql -u root -e '$priv_stmt'"
 
 # 查看主服务器的状态
 echo "查看主服务器的状态......"
-MS_STATUS=`docker exec $master_container sh -c 'export MYSQL_PWD='$root_password'; mysql -u root -e "SHOW MASTER STATUS"'`
+MS_STATUS=`docker exec $master_container sh -c 'export MYSQL_PWD='$root_password'; mysql -u root -e "SHOW MASTER STATUS;"'`
 echo $MS_STATUS
 
 # binlog文件名字,对应 File 字段,值如: mysql-bin.000004
@@ -55,9 +55,9 @@ CURRENT_POS=`echo $MS_STATUS | awk '{print $7}'`
 #################### 从服务器操作 ####################开始
 # 设置从服务器与主服务器互通命令
 start_slave_stmt="CHANGE MASTER TO
-        MASTER_HOST='$(docker-ip $master_container)',
-        MASTER_USER='$mysql_user',
-        MASTER_PASSWORD='$mysql_password',
+        MASTER_HOST='$(docker_ip $master_container)',
+        MASTER_USER='$slave_user',
+        MASTER_PASSWORD='$slave_password',
         MASTER_LOG_FILE='$CURRENT_LOG',
         MASTER_LOG_POS=$CURRENT_POS;"
 start_slave_cmd='export MYSQL_PWD='$root_password'; mysql -u root -e "'
@@ -70,7 +70,7 @@ for slave in "${slave_containers[@]}";do
   docker exec $slave sh -c "$start_slave_cmd"
   # 查看从服务器的状态
   echo "查看从服务器'$slave'的状态......"
-  docker exec $slave sh -c "export MYSQL_PWD='$root_password'; mysql -u root -e 'SHOW SLAVE STATUS \G'"
+  docker exec $slave sh -c "export MYSQL_PWD='$root_password'; mysql -u root -e 'SHOW SLAVE STATUS \G;'"
 done
 
 echo -e "\033[42;34m finish success !!! \033[0m"

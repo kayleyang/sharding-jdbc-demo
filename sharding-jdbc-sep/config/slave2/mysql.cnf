@@ -14,7 +14,7 @@ skip-name-resolve
 server-id = 22
 
 # mysql日志
-log_bin = /var/log/mysql/mysql-bin.log
+log-bin = /var/log/mysql/mysql-bin.log
 
 # 中继日志：存储所有主库TP过来的binlog事件主库binlog：记录主库发生过的修改事件
 relay-log = /var/log/mysql/mysql-relay-bin.log
