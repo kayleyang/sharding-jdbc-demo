@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   mysql_master:
-    image: mysql:5.7.16
+    image: mysql:5.7
     env_file:
       - ./config/mysql.env
     container_name: "mysql_master"
@@ -16,7 +16,7 @@ services:
       - overlay
 
   mysql_slave1:
-    image: mysql:5.7.16
+    image: mysql:5.7
     env_file:
       - ./config/mysql.env
     container_name: "mysql_slave1"
@@ -32,7 +32,7 @@ services:
       - overlay
 
   mysql_slave2:
-    image: mysql:5.7.16
+    image: mysql:5.7
     env_file:
       - ./config/mysql.env
     container_name: "mysql_slave2"

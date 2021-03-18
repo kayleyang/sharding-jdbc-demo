@@ -48,12 +48,12 @@ MS_STATUS=`docker exec $master_container sh -c 'export MYSQL_PWD='$root_password
 echo $MS_STATUS
 
 # binlog文件名字,对应 File 字段,值如: mysql-bin.000004， mac上分两行，取最后一行第一个字段，windows上分一行，取第6个字段
-CURRENT_LOG=`echo $MS_STATUS | awk 'END{print $1}'`
-#CURRENT_LOG=`echo $MS_STATUS | awk '{print $6}'`
+#CURRENT_LOG=`echo $MS_STATUS | awk 'END{print $1}'`
+CURRENT_LOG=`echo $MS_STATUS | awk '{print $6}'`
 echo "CURRENT_LOG='$CURRENT_LOG'"
 # binlog位置,对应 Position 字段,值如: 1429， mac上分两行，取最后一行第一个字段，windows上分一行，取第7个字段
-CURRENT_POS=`echo $MS_STATUS | awk 'END{print $2}'`
-#CURRENT_POS=`echo $MS_STATUS | awk '{print $7}'`
+#CURRENT_POS=`echo $MS_STATUS | awk 'END{print $2}'`
+CURRENT_POS=`echo $MS_STATUS | awk '{print $7}'`
 echo "CURRENT_POS='$CURRENT_POS'"
 
 #################### 从服务器操作 ####################开始
